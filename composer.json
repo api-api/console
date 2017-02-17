@@ -1,0 +1,43 @@
+{
+  "name": "api-api/console",
+  "description": "A console to send and inspect requests with the API-API.",
+  "version": "1.0.0",
+  "license": "GPL-3.0",
+  "keywords": [
+    "api-api",
+    "api",
+    "rest",
+    "library",
+    "client",
+    "request",
+    "console"
+  ],
+  "homepage": "https://github.com/api-api/console",
+  "authors": [
+    {
+      "name": "Felix Arntz",
+      "email": "felix-arntz@leaves-and-love.net",
+      "homepage": "https://leaves-and-love.net",
+      "role": "Lead Developer"
+    },
+    {
+      "name": "Sven Wagener",
+      "email": "sven@awesome.ug",
+      "homepage": "http://awesome.ug",
+      "role": "Head of Development"
+    }
+  ],
+  "support": {
+    "email": "felix-arntz@leaves-and-love.net",
+    "issues": "https://github.com/api-api/console/issues"
+  },
+  "autoload": {
+    "psr-4": {
+      "APIAPI\\Console\\": "src/Console/"
+    }
+  },
+  "require": {
+    "api-api/core": "dev-master",
+    "rmccue/requests": "~1.7"
+  }
+}
