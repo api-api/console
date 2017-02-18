@@ -1,18 +1,24 @@
-.wrap {
+body {
+	margin: 0;
+}
+
+.wrap,
+.header,
+.main,
+.footer {
 	position: absolute;
-	top: 0;
+	overflow: hidden;
 	right: 0;
-	bottom: 0;
 	left: 0;
-	height: 100%;
-	min-height: 100%;
+}
+
+.wrap {
+	top: 0;
+	bottom: 0;
 }
 
 .header {
-	position: absolute;
 	top: 0;
-	right: 0;
-	left: 0;
 	z-index: 10;
 	height: 120px;
 	color: #ffffff;
@@ -20,18 +26,12 @@
 }
 
 .main {
-	position: relative;
-	height: 100%;
-	min-height: 100%;
-	margin-top: 120px;
-	margin-bottom: 50px;
+	top: 120px;
+	bottom: 50px;
 }
 
 .footer {
-	position: absolute;
-	right: 0;
 	bottom: 0;
-	left: 0;
 	z-index: 10;
 	height: 50px;
 	color: #ffffff;
@@ -42,12 +42,62 @@
 	line-height: 50px;
 }
 
-.navigation {
+.navigation-wrap,
+.inspector-wrap {
+	position: absolute;
+	overflow: hidden;
+	top: 0;
+	bottom: 0;
+}
+
+.navigation-wrap {
+	overflow-y: scroll;
+	left: 0;
+	width: 25%;
 	color: #444444;
 	background-color: #5886c1;
 }
 
-.inspector {
+.inspector-wrap {
+	right: 0;
+	width: 75%;
 	color: #444444;
 	background-color: #eeeeee;
+}
+
+.navigation {
+	position: relative;
+	padding: 10px 15px;
+}
+
+.inspector-route,
+.inspector-content-wrap {
+	position: absolute;
+	overflow: hidden;
+	right: 0;
+	left: 0;
+}
+
+.inspector-route {
+	top: 0;
+	padding: 0 15px;
+	height: 30px;
+	line-height: 30px;
+	background-color: #cccccc;
+}
+
+.inspector-content-wrap {
+	top: 30px;
+	bottom: 0;
+}
+
+.inspector-content {
+	position: relative;
+	display: block;
+	width: 100%;
+	height: 100%;
+	padding: 10px 15px;
+	resize: none;
+	border: 0;
+	font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
 }

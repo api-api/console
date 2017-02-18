@@ -87,11 +87,9 @@ if ( ! class_exists( 'APIAPI\Console\Templates' ) ) {
 		 */
 		private static function print_template_app_main() {
 			?>
-			<main class="main container-fluid">
-				<div class="content row">
-					<app-navigation class="col-sm-3"></app-navigation>
-					<app-inspector class="col-sm-9"></app-inspector>
-				</div>
+			<main class="main">
+				<app-navigation></app-navigation>
+				<app-inspector></app-inspector>
 			</main>
 			<?php
 		}
@@ -120,8 +118,10 @@ if ( ! class_exists( 'APIAPI\Console\Templates' ) ) {
 		 */
 		private static function print_template_app_navigation() {
 			?>
-			<div class="navigation">
-				Navigation
+			<div class="navigation-wrap">
+				<div class="navigation">
+					Navigation
+				</div>
 			</div>
 			<?php
 		}
@@ -135,8 +135,15 @@ if ( ! class_exists( 'APIAPI\Console\Templates' ) ) {
 		 */
 		private static function print_template_app_inspector() {
 			?>
-			<div class="inspector">
-				Inspector
+			<div class="inspector-wrap">
+				<div class="inspector">
+					<div class="inspector-route">
+						WordPress: POST /wp/v2/posts
+					</div>
+					<div class="inspector-content-wrap">
+						<textarea class="inspector-content">/* Here you will find some JSON. */</textarea>
+					</div>
+				</div>
 			</div>
 			<?php
 		}
