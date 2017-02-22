@@ -20,7 +20,7 @@ AJAX::listen();
 </head>
 
 <body>
-	<app id="app"></app>
+	<div id="app"></div>
 
 	<?php Templates::print_templates(); ?>
 

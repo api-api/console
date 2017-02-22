@@ -2,21 +2,30 @@
 
 	var templates = [
 		{
-			name: 'app'
+			name: 'app',
+			props: {
+				ajaxUrl: String,
+				structures: Array,
+				authenticators: Array,
+				transporters: Array,
+				config: Object
+			}
 		},
 		{
 			name: 'app-header',
 			props: [ 'headline' ]
 		},
 		{
-			name: 'app-main'
+			name: 'app-main',
+			props: [ 'navigation_headline', 'navigation_contents' ]
 		},
 		{
 			name: 'app-footer',
 			props: [ 'copyright' ]
 		},
 		{
-			name: 'app-navigation'
+			name: 'app-navigation',
+			props: [ 'headline', 'contents' ]
 		},
 		{
 			name: 'app-inspector'

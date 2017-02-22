@@ -57,7 +57,7 @@ if ( ! class_exists( 'APIAPI\Console\Templates' ) ) {
 			?>
 			<div class="wrap">
 				<app-header headline="API-API Console"></app-header>
-				<app-main></app-main>
+				<app-main navigation_headline="Available Structures" :navigation_contents="structures"></app-main>
 				<app-footer copyright="Made with love by the API-API Team."></app-footer>
 			</div>
 			<?php
@@ -88,7 +88,7 @@ if ( ! class_exists( 'APIAPI\Console\Templates' ) ) {
 		private static function print_template_app_main() {
 			?>
 			<main class="main">
-				<app-navigation></app-navigation>
+				<app-navigation :headline="navigation_headline" :contents="navigation_contents"></app-navigation>
 				<app-inspector></app-inspector>
 			</main>
 			<?php
@@ -120,7 +120,16 @@ if ( ! class_exists( 'APIAPI\Console\Templates' ) ) {
 			?>
 			<div class="navigation-wrap">
 				<div class="navigation">
-					Navigation
+					<div class="navigation-header">
+						{{headline}}
+					</div>
+					<div class="navigation-content-wrap">
+						<div class="navigation-content">
+							<ul>
+								<li v-for="content in contents">{{content}}</li>
+							</ul>
+						</div>
+					</div>
 				</div>
 			</div>
 			<?php

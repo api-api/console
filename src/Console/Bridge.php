@@ -166,7 +166,7 @@ if ( ! class_exists( 'APIAPI\Console\Bridge' ) ) {
 		 */
 		public function get_js_data() {
 			return array(
-				'ajax_url'       => AJAX::get_base_url(),
+				'ajaxUrl'        => AJAX::get_base_url(),
 				'structures'     => array_keys( $this->get_structures() ),
 				'authenticators' => array_keys( $this->get_authenticators() ),
 				'transporters'   => array_keys( $this->get_transporters() ),

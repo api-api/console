@@ -28,19 +28,19 @@ body {
 
 .main {
 	top: 120px;
-	bottom: 50px;
+	bottom: 40px;
 }
 
 .footer {
 	bottom: 0;
 	z-index: 10;
-	height: 50px;
+	height: 40px;
 	color: #ffffff;
 	background-color: #333333;
 }
 
 .footer .copyright {
-	line-height: 50px;
+	line-height: 40px;
 }
 
 .navigation-wrap,
@@ -52,11 +52,10 @@ body {
 }
 
 .navigation-wrap {
-	overflow-y: scroll;
 	left: 0;
 	width: 25%;
-	color: #444444;
-	background-color: #5886c1;
+	color: #ffffff;
+	background-color: #3f6390;
 }
 
 .inspector-wrap {
@@ -66,11 +65,8 @@ body {
 	background-color: #eeeeee;
 }
 
-.navigation {
-	position: relative;
-	padding: 10px 15px;
-}
-
+.navigation-header,
+.navigation-content-wrap,
 .inspector-route,
 .inspector-content-wrap {
 	position: absolute;
@@ -79,25 +75,38 @@ body {
 	left: 0;
 }
 
+.navigation-header,
 .inspector-route {
 	top: 0;
 	padding: 0 15px;
 	height: 30px;
 	line-height: 30px;
+}
+
+.navigation-header {
+	background-color: #1b314c;
+}
+
+.inspector-route {
 	background-color: #cccccc;
 }
 
+.navigation-content-wrap,
 .inspector-content-wrap {
 	top: 30px;
 	bottom: 0;
 }
 
+.navigation-content,
 .inspector-content {
 	position: relative;
+	padding: 10px 15px;
+}
+
+.inspector-content {
 	display: block;
 	width: 100%;
 	height: 100%;
-	padding: 10px 15px;
 	resize: none;
 	border: 0;
 	font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
