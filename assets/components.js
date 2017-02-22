@@ -5,9 +5,10 @@
 			name: 'app',
 			props: {
 				ajaxUrl: String,
-				structures: Array,
-				authenticators: Array,
-				transporters: Array,
+				structureNames: Array,
+				authenticatorNames: Array,
+				transporterNames: Array,
+				storageNames: Array,
 				config: Object
 			}
 		},
@@ -21,20 +22,20 @@
 			name: 'app-main',
 			props: {
 				ajaxUrl: String,
-				structures: Array,
+				structureNames: Array,
 				currentStructure: Object,
 				navigationView: String,
 				navigationStructureHeadline: String
 			},
 			methods: {
-				getStructures: function() {
+				getStructureNames: function() {
 					var vm = this;
 					this.$http.get( this.ajaxUrl, {
 						params: {
-							action: 'get_structures'
+							action: 'get_structure_names'
 						}
 					}).then( function( response ) {
-						vm.structures = response.body;
+						vm.structureNames = response.body;
 						vm.navigationView = 'structures';
 						vm.currentStructure = null;
 					}, function( response ) {
@@ -66,7 +67,7 @@
 		{
 			name: 'app-navigation',
 			props: {
-				structures: Array,
+				structureNames: Array,
 				currentStructure: Object,
 				view: String,
 				structureHeadline: String
@@ -81,7 +82,7 @@
 				},
 				contents: function() {
 					if ( 'structures' === this.view ) {
-						return this.structures;
+						return this.structureNames;
 					}
 
 					var routeIdentifiers = [];
@@ -93,11 +94,15 @@
 				}
 			},
 			methods: {
-				getStructures: function() {
-					this.$emit( 'getStructures' );
+				backLinkClicked: function() {
+					this.$emit( 'getStructureNames' );
 				},
-				getStructure: function( structure ) {
-					this.$emit( 'getStructure', structure );
+				linkClicked: function( structure ) {
+					if ( 'structures' === this.view ) {
+						this.$emit( 'getStructure', structure );
+					} else {
+						//TODO
+					}
 				}
 			}
 		},

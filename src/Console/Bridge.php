@@ -58,7 +58,7 @@ if ( ! class_exists( 'APIAPI\Console\Bridge' ) ) {
 			$this->apiapi_slug = $apiapi_slug;
 			$this->config_file = $config_file;
 
-			AJAX::register_action( 'get_structures', array( $this, 'ajax_get_structures' ) );
+			AJAX::register_action( 'get_structure_names', array( $this, 'ajax_get_structure_names' ) );
 			AJAX::register_action( 'get_structure', array( $this, 'ajax_get_structure' ) );
 		}
 
@@ -196,12 +196,12 @@ if ( ! class_exists( 'APIAPI\Console\Bridge' ) ) {
 		 */
 		public function get_js_data() {
 			return array(
-				'ajaxUrl'        => AJAX::get_base_url(),
-				'structures'     => array_keys( $this->get_structures() ),
-				'authenticators' => array_keys( $this->get_authenticators() ),
-				'transporters'   => array_keys( $this->get_transporters() ),
-				'storages'       => array_keys( $this->get_storages() ),
-				'config'         => $this->get_config(),
+				'ajaxUrl'            => AJAX::get_base_url(),
+				'structureNames'     => array_keys( $this->get_structures() ),
+				'authenticatorNames' => array_keys( $this->get_authenticators() ),
+				'transporterNames'   => array_keys( $this->get_transporters() ),
+				'storageNames'       => array_keys( $this->get_storages() ),
+				'config'             => $this->get_config(),
 			);
 		}
 
@@ -216,7 +216,7 @@ if ( ! class_exists( 'APIAPI\Console\Bridge' ) ) {
 		 * @param array $request Request data.
 		 * @return array Array of structure names.
 		 */
-		public function ajax_get_structures( $request ) {
+		public function ajax_get_structure_names( $request ) {
 			return array_keys( $this->get_structures() );
 		}
 
