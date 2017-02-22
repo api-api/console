@@ -57,6 +57,9 @@ if ( ! class_exists( 'APIAPI\Console\Bridge' ) ) {
 		public function __construct( $apiapi_slug, $config_file = '' ) {
 			$this->apiapi_slug = $apiapi_slug;
 			$this->config_file = $config_file;
+
+			AJAX::register_action( 'get_structures', array( $this, 'ajax_get_structures' ) );
+			AJAX::register_action( 'get_structure', array( $this, 'ajax_get_structure' ) );
 		}
 
 		/**
@@ -93,6 +96,18 @@ if ( ! class_exists( 'APIAPI\Console\Bridge' ) ) {
 		 */
 		public function get_transporters() {
 			return apiapi_manager()->transporters()->get_all();
+		}
+
+		/**
+		 * Returns all registered storages.
+		 *
+		 * @since 1.0.0
+		 * @access public
+		 *
+		 * @return array Array of storages.
+		 */
+		public function get_storages() {
+			return apiapi_manager()->storages()->get_all();
 		}
 
 		/**
@@ -135,6 +150,19 @@ if ( ! class_exists( 'APIAPI\Console\Bridge' ) ) {
 		}
 
 		/**
+		 * Returns a specific registered storage.
+		 *
+		 * @since 1.0.0
+		 * @access public
+		 *
+		 * @param string $name Name of the storage.
+		 * @return APIAPI\Core\Transporters\Transporter|null The storage object, or null.
+		 */
+		public function get_storage( $name ) {
+			return apiapi_manager()->storages()->get( $name );
+		}
+
+		/**
 		 * Returns the base configuration array.
 		 *
 		 * @since 1.0.0
@@ -144,7 +172,9 @@ if ( ! class_exists( 'APIAPI\Console\Bridge' ) ) {
 		 */
 		public function get_config() {
 			$base_config = array(
-				'transporter' => apiapi_manager()->transporters()->get_default_name(),
+				'transporter'            => apiapi_manager()->transporters()->get_default_name(),
+				'config_updater'         => true,
+				'config_updater_storage' => 'cookie',
 			);
 
 			if ( ! empty( $this->config_file ) && file_exists( $this->config_file ) ) {
@@ -170,8 +200,97 @@ if ( ! class_exists( 'APIAPI\Console\Bridge' ) ) {
 				'structures'     => array_keys( $this->get_structures() ),
 				'authenticators' => array_keys( $this->get_authenticators() ),
 				'transporters'   => array_keys( $this->get_transporters() ),
+				'storages'       => array_keys( $this->get_storages() ),
 				'config'         => $this->get_config(),
 			);
+		}
+
+		/**
+		 * Returns all available structure names.
+		 *
+		 * Used as an AJAX callback.
+		 *
+		 * @since 1.0.0
+		 * @access public
+		 *
+		 * @param array $request Request data.
+		 * @return array Array of structure names.
+		 */
+		public function ajax_get_structures( $request ) {
+			return array_keys( $this->get_structures() );
+		}
+
+		/**
+		 * Returns a specific structure object.
+		 *
+		 * Used as an AJAX callback.
+		 *
+		 * @since 1.0.0
+		 * @access public
+		 *
+		 * @param array $request Request data.
+		 * @return array Structure data.
+		 */
+		public function ajax_get_structure( $request ) {
+			if ( ! isset( $request['structure_name'] ) ) {
+				throw new Exception( 'No structure name given.', 0, array( 'status' => 400 ) );
+			}
+
+			$structure = $this->get_structure( $request['structure_name'] );
+			if ( ! $structure ) {
+				throw new Exception( sprintf( 'The structure %s does not exist.', $request['structure_name'] ), 0, array( 'status' => 404 ) );
+			}
+
+			$mode = '';
+			$authentication_data = array();
+
+			$config = $this->get_config();
+			$config_key = $structure->get_config_key();
+			if ( isset( $config[ $config_key ] ) ) {
+				if ( isset( $config[ $config_key ]['mode'] ) ) {
+					$mode = $config[ $config_key ]['mode'];
+				}
+
+				$authentication_data = $structure->get_authentication_data_defaults( $mode );
+
+				if ( isset( $config[ $config_key ]['authentication_data'] ) ) {
+					$authentication_data = array_merge( $authentication_data, $config[ $config_key ]['authentication_data'] );
+				}
+			} else {
+				$authentication_data = $structure->get_authentication_data_defaults();
+			}
+
+			$structure_data = array(
+				'name'               => $structure->get_name(),
+				'baseUri'            => $structure->get_base_uri( $mode ),
+				'routes'             => array(),
+				'authenticator'      => $structure->get_authenticator(),
+				'authenticationData' => $authentication_data,
+			);
+
+			foreach ( $structure->get_route_objects() as $route_name => $route ) {
+				foreach ( $route->get_supported_methods() as $method ) {
+					$params_assoc = $route->get_method_params( $method );
+
+					$params = array();
+					foreach ( $params_assoc as $param_name => $param_info ) {
+						$params[] = array_merge( array( 'name' => $param_name ), $param_info );
+					}
+
+					$route_data = array(
+						'uri'                  => $route->get_uri(),
+						'method'               => $method,
+						'description'          => $route->get_method_description( $method ),
+						'params'               => $params,
+						'supportsCustomParams' => $route->method_supports_custom_params( $method ),
+						'needsAuthentication'  => $route->method_needs_authentication( $method ),
+					);
+
+					$structure_data['routes'][] = $route_data;
+				}
+			}
+
+			return $structure_data;
 		}
 
 		/**
