@@ -20,9 +20,41 @@
 		{
 			name: 'app-main',
 			props: {
+				ajaxUrl: String,
+				structures: Array,
+				currentStructure: Object,
 				navigationView: String,
-				navigationStructureHeadline: String,
-				navigationStructures: Array
+				navigationStructureHeadline: String
+			},
+			methods: {
+				getStructures: function() {
+					var vm = this;
+					this.$http.get( this.ajaxUrl, {
+						params: {
+							action: 'get_structures'
+						}
+					}).then( function( response ) {
+						vm.structures = response.body;
+						vm.navigationView = 'structures';
+						vm.currentStructure = null;
+					}, function( response ) {
+						console.error( response.body.message );
+					});
+				},
+				getStructure: function( structure ) {
+					var vm = this;
+					this.$http.get( this.ajaxUrl, {
+						params: {
+							action: 'get_structure',
+							structure_name: structure
+						}
+					}).then( function( response ) {
+						vm.currentStructure = response.body;
+						vm.navigationView = 'routes';
+					}, function( response ) {
+						console.error( response.body.message );
+					});
+				}
 			}
 		},
 		{
@@ -34,11 +66,10 @@
 		{
 			name: 'app-navigation',
 			props: {
-				view: String,
-				structureHeadline: String,
 				structures: Array,
-				routes: Array,
-				currentStructure: Object
+				currentStructure: Object,
+				view: String,
+				structureHeadline: String
 			},
 			computed: {
 				headline: function() {
@@ -53,15 +84,20 @@
 						return this.structures;
 					}
 
-					return this.routes;
+					var routeIdentifiers = [];
+					for ( var i in this.currentStructure.routes ) {
+						routeIdentifiers.push( this.currentStructure.routes[ i ].method + ' ' + this.currentStructure.routes[ i ].uri );
+					}
+
+					return routeIdentifiers;
 				}
 			},
 			methods: {
-				listStructures: function() {
-
+				getStructures: function() {
+					this.$emit( 'getStructures' );
 				},
-				listRoutes: function( structure ) {
-					console.log( 'List routes for ' + structure );
+				getStructure: function( structure ) {
+					this.$emit( 'getStructure', structure );
 				}
 			}
 		},

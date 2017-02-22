@@ -57,7 +57,7 @@ if ( ! class_exists( 'APIAPI\Console\Templates' ) ) {
 			?>
 			<div class="wrap">
 				<app-header headline="API-API Console"></app-header>
-				<app-main navigationView="structures" navigationStructureHeadline="Available Structures" :navigationStructures="structures"></app-main>
+				<app-main :ajaxUrl="ajaxUrl" :structures="structures" navigationView="structures" navigationStructureHeadline="Available Structures"></app-main>
 				<app-footer copyright="Made with love by the API-API Team."></app-footer>
 			</div>
 			<?php
@@ -88,7 +88,7 @@ if ( ! class_exists( 'APIAPI\Console\Templates' ) ) {
 		private static function print_template_app_main() {
 			?>
 			<main class="main">
-				<app-navigation :view="navigationView" :structureHeadline="navigationStructureHeadline" :structures="navigationStructures"></app-navigation>
+				<app-navigation :structures="structures" :currentStructure="currentStructure" :view="navigationView" :structureHeadline="navigationStructureHeadline" v-on:getStructures="getStructures" v-on:getStructure="getStructure"></app-navigation>
 				<app-inspector></app-inspector>
 			</main>
 			<?php
@@ -122,13 +122,13 @@ if ( ! class_exists( 'APIAPI\Console\Templates' ) ) {
 				<div class="navigation">
 					<div class="navigation-header">
 						<strong>{{headline}}</strong>
-						<button v-if="'structures' !== view" class="navigation-header-back-button btn btn-default btn-xs">Back</button>
+						<button v-if="'structures' !== view" class="navigation-header-back-button btn btn-default btn-xs" v-on:click.stop.prevent="getStructures()">Back</button>
 					</div>
 					<div class="navigation-content-wrap">
 						<div class="navigation-content">
 							<ul>
 								<li v-for="content in contents">
-									<a class="navigation-content-link" :href="'#' + content" v-on:click="listRoutes(content,$event)">{{content}}</a>
+									<a class="navigation-content-link" :href="'#' + content" v-on:click.stop.prevent="getStructure(content)">{{content}}</a>
 								</li>
 							</ul>
 						</div>
