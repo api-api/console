@@ -108,6 +108,10 @@ body {
 	bottom: 0;
 }
 
+.navigation-content-wrap {
+	overflow-y: scroll;
+}
+
 .navigation-content,
 .inspector-content {
 	position: relative;
