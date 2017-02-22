@@ -58,6 +58,17 @@ body {
 	background-color: #3f6390;
 }
 
+.navigation-wrap a,
+.navigation-wrap a:visited {
+	color: #ffffff;
+	text-decoration: underline;
+}
+
+.navigation-wrap a:hover,
+.navigation-wrap a:focus {
+	color: #cccccc;
+}
+
 .inspector-wrap {
 	right: 0;
 	width: 75%;
@@ -110,4 +121,14 @@ body {
 	resize: none;
 	border: 0;
 	font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
+}
+
+.navigation-header-back-button {
+	position: absolute;
+	top: 50%;
+	right: 10px;
+	z-index: 10;
+	-webkit-transform: translateY(-50%);
+	   -moz-transform: translateY(-50%);
+	        transform: translateY(-50%);
 }
