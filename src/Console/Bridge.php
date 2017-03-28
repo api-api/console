@@ -300,6 +300,10 @@ if ( ! class_exists( 'APIAPI\Console\Bridge' ) ) {
 				throw new Exception( sprintf( 'The route %1$s in structure %2$s does not exist.', $request['route_name'], $request['structure_name'] ), 0, array( 'status' => 404 ) );
 			}
 
+			if ( ! in_array( $request['method_name'], $route->get_supported_methods(), true ) ) {
+				throw new Exception( sprintf( 'The route %1$s in structure %2$s does not support the %3$s method.', $request['route_name'], $request['structure_name'], $request['method_name'] ), 0, array( 'status' => 404 ) );
+			}
+
 			return $this->get_route_data( $route, $request['method_name'] );
 		}
 

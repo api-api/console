@@ -85,7 +85,11 @@
 					if ( 'list' === routeView ) {
 						this.currentRoute = null;
 					} else if ( 'list' !== this.structureView ) {
-						console.log( 'getting route for structure ' + this.structureView + ' and route ' + routeView );
+						var match = routeView.match( /^(GET|POST|PUT|PATCH|DELETE) / );
+						var route = routeView.substring( match[0].length );
+						var method = match[1];
+
+						this.getRoute( this.structureView, route, method );
 					}
 				}
 			},
@@ -122,6 +126,21 @@
 						}
 					}).then( function( response ) {
 						vm.currentStructure = response.body;
+					}, function( response ) {
+						console.error( response.body.message );
+					});
+				},
+				getRoute: function( structure, route, method ) {
+					var vm = this;
+					this.$http.get( this.ajaxUrl, {
+						params: {
+							action: 'get_route',
+							structure_name: structure,
+							route_name: route.replace( /\\/g, '\\\\' ),
+							method_name: method
+						}
+					}).then( function( response ) {
+						vm.currentRoute = response.body;
 					}, function( response ) {
 						console.error( response.body.message );
 					});
