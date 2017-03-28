@@ -342,7 +342,12 @@ if ( ! class_exists( 'APIAPI\Console\Bridge' ) ) {
 					}
 				case 'path':
 					if ( ! empty( $parts['path'] ) ) {
+						if ( '.php' !== substr( $parts['path'], -4 ) && '/' !== substr( $parts['path'], -1 ) ) {
+							$parts['path'] .= '/';
+						}
 						$url = $parts['path'] . $url;
+					} else {
+						$url = '/' . $url;
 					}
 				case 'host':
 					$url = $parts['protocol'] . '://' . $parts['host'] . $url;

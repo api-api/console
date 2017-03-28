@@ -24,10 +24,10 @@ if ( ! class_exists( 'APIAPI\Console\Assets' ) ) {
 		 * @static
 		 */
 		public static function enqueue_styles() {
-			$base_url = Bridge::get_current_url( 'host' );
+			$base_url = Bridge::get_current_url( 'path' );
 
-			$assets_base_url = $base_url . '/assets';
-			$vendor_base_url = $base_url . '/node_modules';
+			$assets_base_url = $base_url . 'assets';
+			$vendor_base_url = $base_url . 'node_modules';
 
 			?>
 			<link rel="stylesheet" type="text/css" href="<?php echo $vendor_base_url; ?>/bootstrap/dist/css/bootstrap.css">
@@ -43,10 +43,10 @@ if ( ! class_exists( 'APIAPI\Console\Assets' ) ) {
 		 * @static
 		 */
 		public static function enqueue_scripts() {
-			$base_url = Bridge::get_current_url( 'host' );
+			$base_url = Bridge::get_current_url( 'path' );
 
-			$assets_base_url = $base_url . '/assets';
-			$vendor_base_url = $base_url . '/node_modules';
+			$assets_base_url = $base_url . 'assets';
+			$vendor_base_url = $base_url . 'node_modules';
 
 			?>
 			<script type="text/javascript" src="<?php echo $vendor_base_url; ?>/vue/dist/vue.js"></script>

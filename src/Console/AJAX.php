@@ -187,7 +187,7 @@ if ( ! class_exists( 'APIAPI\Console\AJAX' ) ) {
 		 * @return string AJAX URL.
 		 */
 		public static function get_base_url() {
-			return Bridge::get_current_url( 'host' ) . '/?ajax=1';
+			return Bridge::get_current_url( 'path' ) . '?ajax=1';
 		}
 
 		/**
