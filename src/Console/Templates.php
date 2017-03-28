@@ -29,8 +29,6 @@ if ( ! class_exists( 'APIAPI\Console\Templates' ) ) {
 				'app-header',
 				'app-main',
 				'app-footer',
-				'app-navigation',
-				'app-inspector',
 			);
 
 			foreach ( $template_names as $template_name ) {
@@ -57,7 +55,7 @@ if ( ! class_exists( 'APIAPI\Console\Templates' ) ) {
 			?>
 			<div class="wrap">
 				<app-header headline="API-API Console"></app-header>
-				<app-main :ajaxUrl="ajaxUrl" :structureNames="structureNames" navigationView="structures" navigationStructureHeadline="Available Structures"></app-main>
+				<app-main :ajaxUrl="ajaxUrl" :structureNames="structureNames" navigationStructureHeadline="Available Structures"></app-main>
 				<app-footer copyright="Made with love by the API-API Team."></app-footer>
 			</div>
 			<?php
@@ -88,8 +86,33 @@ if ( ! class_exists( 'APIAPI\Console\Templates' ) ) {
 		private static function print_template_app_main() {
 			?>
 			<main class="main">
-				<app-navigation :structureNames="structureNames" :currentStructure="currentStructure" :view="navigationView" :structureHeadline="navigationStructureHeadline" v-on:getStructureNames="getStructureNames" v-on:getStructure="getStructure"></app-navigation>
-				<app-inspector></app-inspector>
+				<div class="navigation-wrap">
+					<div class="navigation">
+						<div class="navigation-header">
+							<strong>{{navigationHeadline}}</strong>
+							<button v-if="'list' !== structureView" class="navigation-header-back-button btn btn-default btn-xs" v-on:click.stop.prevent="setView( 'structures' )">Back</button>
+						</div>
+						<div class="navigation-content-wrap">
+							<div class="navigation-content">
+								<ul>
+									<li v-for="content in navigationContents">
+										<a class="navigation-content-link" :href="'#' + content" v-on:click.stop.prevent="setView( content )">{{content}}</a>
+									</li>
+								</ul>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="inspector-wrap">
+				<div class="inspector">
+						<div class="inspector-route">
+							WordPress: POST /wp/v2/posts
+						</div>
+						<div class="inspector-content-wrap">
+							<textarea class="inspector-content">/* Here you will find some JSON. */</textarea>
+						</div>
+					</div>
+				</div>
 			</main>
 			<?php
 		}
@@ -106,57 +129,6 @@ if ( ! class_exists( 'APIAPI\Console\Templates' ) ) {
 			<footer class="footer container-fluid">
 				<p class="copyright">&copy; {{copyright}}</p>
 			</footer>
-			<?php
-		}
-
-		/**
-		 * Prints the 'app-navigation' template.
-		 *
-		 * @since 1.0.0
-		 * @access private
-		 * @static
-		 */
-		private static function print_template_app_navigation() {
-			?>
-			<div class="navigation-wrap">
-				<div class="navigation">
-					<div class="navigation-header">
-						<strong>{{headline}}</strong>
-						<button v-if="'structures' !== view" class="navigation-header-back-button btn btn-default btn-xs" v-on:click.stop.prevent="backLinkClicked()">Back</button>
-					</div>
-					<div class="navigation-content-wrap">
-						<div class="navigation-content">
-							<ul>
-								<li v-for="content in contents">
-									<a class="navigation-content-link" :href="'#' + content" v-on:click.stop.prevent="linkClicked(content)">{{content}}</a>
-								</li>
-							</ul>
-						</div>
-					</div>
-				</div>
-			</div>
-			<?php
-		}
-
-		/**
-		 * Prints the 'app-inspector' template.
-		 *
-		 * @since 1.0.0
-		 * @access private
-		 * @static
-		 */
-		private static function print_template_app_inspector() {
-			?>
-			<div class="inspector-wrap">
-				<div class="inspector">
-					<div class="inspector-route">
-						WordPress: POST /wp/v2/posts
-					</div>
-					<div class="inspector-content-wrap">
-						<textarea class="inspector-content">/* Here you will find some JSON. */</textarea>
-					</div>
-				</div>
-			</div>
 			<?php
 		}
 	}

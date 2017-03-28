@@ -38,6 +38,19 @@
   },
   "require": {
     "api-api/core": "dev-master",
+    "api-api/storage-cookie": "dev-master",
+    "api-api/storage-session": "dev-master",
+    "api-api/transporter-curl": "dev-master",
+    "api-api/transporter-requests": "dev-master",
+    "api-api/authenticator-basic": "dev-master",
+    "api-api/authenticator-bearer": "dev-master",
+    "api-api/authenticator-oauth1": "dev-master",
+    "api-api/authenticator-x": "dev-master",
+    "api-api/authenticator-x-account": "dev-master",
+    "api-api/structure-billomat": "dev-master",
+    "api-api/structure-google": "dev-master",
+    "api-api/structure-twitter": "dev-master",
+    "api-api/structure-wordpress": "dev-master",
     "rmccue/requests": "~1.7"
   }
 }
