@@ -60,6 +60,7 @@ if ( ! class_exists( 'APIAPI\Console\Bridge' ) ) {
 
 			AJAX::register_action( 'get_structure_names', array( $this, 'ajax_get_structure_names' ) );
 			AJAX::register_action( 'get_structure', array( $this, 'ajax_get_structure' ) );
+			AJAX::register_action( 'get_route', array( $this, 'ajax_get_route' ) );
 		}
 
 		/**
@@ -241,56 +242,113 @@ if ( ! class_exists( 'APIAPI\Console\Bridge' ) ) {
 				throw new Exception( sprintf( 'The structure %s does not exist.', $request['structure_name'] ), 0, array( 'status' => 404 ) );
 			}
 
-			$mode = '';
-			$authentication_data = array();
-
-			$config = $this->get_config();
-			$config_key = $structure->get_config_key();
-			if ( isset( $config[ $config_key ] ) ) {
-				if ( isset( $config[ $config_key ]['mode'] ) ) {
-					$mode = $config[ $config_key ]['mode'];
-				}
-
-				$authentication_data = $structure->get_authentication_data_defaults( $mode );
-
-				if ( isset( $config[ $config_key ]['authentication_data'] ) ) {
-					$authentication_data = array_merge( $authentication_data, $config[ $config_key ]['authentication_data'] );
-				}
-			} else {
-				$authentication_data = $structure->get_authentication_data_defaults();
-			}
+			$config_data = $this->get_config_data_for_key( $structure->get_config_key(), array(
+				'mode'                => '',
+				'authentication_data' => $structure->get_authentication_data_defaults(),
+			) );
 
 			$structure_data = array(
 				'name'               => $structure->get_name(),
-				'baseUri'            => $structure->get_base_uri( $mode ),
+				'baseUri'            => $structure->get_base_uri( $config_data['mode'] ),
+				'baseUriParams'      => $structure->get_base_uri_params( $config_data['mode'] ),
 				'routes'             => array(),
 				'authenticator'      => $structure->get_authenticator(),
-				'authenticationData' => $authentication_data,
+				'authenticationData' => $config_data['authentication_data'],
 			);
 
 			foreach ( $structure->get_route_objects() as $route_name => $route ) {
 				foreach ( $route->get_supported_methods() as $method ) {
-					$params_assoc = $route->get_method_params( $method );
-
-					$params = array();
-					foreach ( $params_assoc as $param_name => $param_info ) {
-						$params[] = array_merge( array( 'name' => $param_name ), $param_info );
-					}
-
-					$route_data = array(
-						'uri'                  => $route->get_uri(),
-						'method'               => $method,
-						'description'          => $route->get_method_description( $method ),
-						'params'               => $params,
-						'supportsCustomParams' => $route->method_supports_custom_params( $method ),
-						'needsAuthentication'  => $route->method_needs_authentication( $method ),
-					);
-
-					$structure_data['routes'][] = $route_data;
+					$structure_data['routes'][] = $this->get_route_data( $route, $method );
 				}
 			}
 
 			return $structure_data;
+		}
+
+		/**
+		 * Returns a specific route object.
+		 *
+		 * Used as an AJAX callback.
+		 *
+		 * @since 1.0.0
+		 * @access public
+		 *
+		 * @param array $request Request data.
+		 * @return array Route data.
+		 */
+		public function ajax_get_route( $request ) {
+			if ( ! isset( $request['structure_name'] ) ) {
+				throw new Exception( 'No structure name given.', 0, array( 'status' => 400 ) );
+			}
+
+			if ( ! isset( $request['route_name'] ) ) {
+				throw new Exception( 'No route name given.', 0, array( 'status' => 400 ) );
+			}
+
+			if ( ! isset( $request['method_name'] ) ) {
+				throw new Exception( 'No method name given.', 0, array( 'status' => 400 ) );
+			}
+
+			$structure = $this->get_structure( $request['structure_name'] );
+			if ( ! $structure ) {
+				throw new Exception( sprintf( 'The structure %s does not exist.', $request['structure_name'] ), 0, array( 'status' => 404 ) );
+			}
+
+			try {
+				$route = $structure->get_route_object( $request['route_name'] );
+			} catch ( Exception $e ) {
+				throw new Exception( sprintf( 'The route %1$s in structure %2$s does not exist.', $request['route_name'], $request['structure_name'] ), 0, array( 'status' => 404 ) );
+			}
+
+			return $this->get_route_data( $route, $request['method_name'] );
+		}
+
+		/**
+		 * Returns route data for a given route and method to be used in JS.
+		 *
+		 * @since 1.0.0
+		 * @access private
+		 *
+		 * @param APIAPI\Core\Structures\Route $route  Route object.
+		 * @param string                       $method Either 'GET', 'POST', 'PUT', 'PATCH' or 'DELETE'.
+		 * @return array Data for the route and method.
+		 */
+		private function get_route_data( $route, $method ) {
+			$params_assoc = $route->get_method_params( $method );
+
+			$params = array();
+			foreach ( $params_assoc as $param_name => $param_info ) {
+				$params[] = array_merge( array( 'name' => $param_name ), $param_info );
+			}
+
+			return array(
+				'uri'                  => $route->get_uri(),
+				'method'               => $method,
+				'description'          => $route->get_method_description( $method ),
+				'params'               => $params,
+				'supportsCustomParams' => $route->method_supports_custom_params( $method ),
+				'needsAuthentication'  => $route->method_needs_authentication( $method ),
+			);
+		}
+
+		/**
+		 * Returns configuration data for a specific key.
+		 *
+		 * @since 1.0.0
+		 * @access private
+		 *
+		 * @param string $config_key Configuration key.
+		 * @param array  $defaults   Optional. Associative array of defaults to use. Default empty array.
+		 * @return array Configuration data for the key.
+		 */
+		private function get_config_data_for_key( $config_key, $defaults = array() ) {
+			$config = $this->get_config();
+
+			if ( isset( $config[ $config_key ] ) ) {
+				return array_merge_recursive( $defaults, $config[ $config_key ] );
+			}
+
+			return $defaults;
 		}
 
 		/**
