@@ -247,10 +247,16 @@ if ( ! class_exists( 'APIAPI\Console\Bridge' ) ) {
 				'authentication_data' => $structure->get_authentication_data_defaults(),
 			) );
 
+			$base_uri_params = $structure->get_base_uri_params( $config_data['mode'] );
+			$global_params   = $structure->get_global_params();
+
 			$structure_data = array(
 				'name'               => $structure->get_name(),
+				'title'              => $structure->get_title(),
+				'description'        => $structure->get_description(),
 				'baseUri'            => $structure->get_base_uri( $config_data['mode'] ),
-				'baseUriParams'      => $structure->get_base_uri_params( $config_data['mode'] ),
+				'baseUriParams'      => $this->make_assoc_params_indexed( $base_uri_params ),
+				'globalParams'       => $this->make_assoc_params_indexed( $global_params ),
 				'routes'             => array(),
 				'authenticator'      => $structure->get_authenticator(),
 				'authenticationData' => $config_data['authentication_data'],
@@ -318,21 +324,37 @@ if ( ! class_exists( 'APIAPI\Console\Bridge' ) ) {
 		 * @return array Data for the route and method.
 		 */
 		private function get_route_data( $route, $method ) {
-			$params_assoc = $route->get_method_params( $method );
-
-			$params = array();
-			foreach ( $params_assoc as $param_name => $param_info ) {
-				$params[] = array_merge( array( 'name' => $param_name ), $param_info );
-			}
+			$primary_params = $route->get_primary_params();
+			$method_params  = $route->get_method_params( $method, false );
 
 			return array(
 				'uri'                  => $route->get_uri(),
 				'method'               => $method,
 				'description'          => $route->get_method_description( $method ),
-				'params'               => $params,
+				'primaryParams'        => $this->make_assoc_params_indexed( $primary_params ),
+				'methodParams'         => $this->make_assoc_params_indexed( $method_params ),
 				'supportsCustomParams' => $route->method_supports_custom_params( $method ),
 				'needsAuthentication'  => $route->method_needs_authentication( $method ),
 			);
+		}
+
+		/**
+		 * Transforms an associative array of parameters into an indexed array of parameters.
+		 *
+		 * @since 1.0.0
+		 * @access private
+		 *
+		 * @param array $params_assoc Associative array of parameter information.
+		 * @return array Indexed array of parameter information.
+		 */
+		private function make_assoc_params_indexed( $params_assoc ) {
+			$params = array();
+
+			foreach ( $params_assoc as $param_name => $param_info ) {
+				$params[] = array_merge( array( 'name' => $param_name ), $param_info );
+			}
+
+			return $params;
 		}
 
 		/**

@@ -41,13 +41,33 @@
 					type: String,
 					default: '/* This area will show the latest API response. */'
 				},
-				inspectorButtonModifyParamsText: {
+				navigationButtonInfoPanelText: {
+					type: String,
+					default: 'See Info'
+				},
+				navigationButtonBackText: {
+					type: String,
+					default: 'Back'
+				},
+				inspectorButtonParamsFormText: {
 					type: String,
 					default: 'Modify Parameters'
 				},
 				inspectorButtonSendRequestText: {
 					type: String,
 					default: 'Send Request'
+				},
+				infoPanelHeadline: {
+					type: String,
+					default: 'Structure Information'
+				},
+				paramsFormHeadline: {
+					type: String,
+					default: 'Modify Parameters'
+				},
+				closeText: {
+					type: String,
+					default: 'Close'
 				},
 				loadingText: {
 					type: String,
@@ -58,6 +78,7 @@
 				return {
 					structureView: 'list',
 					routeView: 'list',
+					infoPanelOpen: false,
 					paramsFormOpen: false,
 					params: {},
 					currentStructure: null,
@@ -74,7 +95,7 @@
 						return this.loadingText;
 					}
 
-					return this.currentStructure.name;
+					return this.currentStructure.title;
 				},
 				navigationContents: function() {
 					if ( 'list' === this.structureView ) {
@@ -99,7 +120,7 @@
 						return this.loadingText;
 					}
 
-					return this.currentStructure.name + ': ' + this.currentRoute.method + ' ' + this.currentRoute.uri;
+					return this.currentRoute.method + ' ' + this.currentRoute.uri;
 				},
 				inspectorContent: function() {
 					if ( 'list' === this.structureView || 'list' === this.routeView ) {
@@ -113,6 +134,8 @@
 			},
 			watch: {
 				structureView: function( structureView ) {
+					this.params = {};
+
 					if ( 'list' === structureView ) {
 						this.currentStructure = null;
 					} else {
@@ -120,6 +143,8 @@
 					}
 				},
 				routeView: function( routeView ) {
+					this.params = {};
+
 					if ( 'list' === routeView ) {
 						this.currentRoute = null;
 					} else if ( 'list' !== this.structureView ) {
@@ -135,12 +160,20 @@
 				setView: function( name ) {
 					if ( 'structures' === name ) {
 						this.structureView = 'list';
+						this.routeView = 'list';
 					} else if ( 'routes' === name ) {
 						this.routeView = 'list';
 					} else if ( name.match( /^(GET|POST|PUT|PATCH|DELETE) / ) ) {
 						this.routeView = name;
 					} else {
 						this.structureView = name;
+					}
+				},
+				toggleInfoPanel: function() {
+					if ( this.infoPanelOpen ) {
+						this.infoPanelOpen = false;
+					} else {
+						this.infoPanelOpen = true;
 					}
 				},
 				toggleParamsForm: function() {
@@ -192,6 +225,9 @@
 					}, function( response ) {
 						console.error( response.body.message );
 					});
+				},
+				logParams: function() {
+					console.log( this.params );
 				}
 			}
 		},
@@ -199,6 +235,118 @@
 			name: 'app-footer',
 			props: {
 				copyright: String
+			}
+		},
+		{
+			name: 'input-static',
+			props: {
+				value: {
+					type: String
+				}
+			}
+		},
+		{
+			name: 'input-float',
+			props: {
+				value: {
+					type: Number,
+					default: 0.0
+				},
+				minimum: {
+					type: Number
+				},
+				maximum: {
+					type: Number
+				}
+			},
+			methods: {
+				updateValue: function( value ) {
+					this.$emit( 'input', Number( value ) );
+				}
+			}
+		},
+		{
+			name: 'input-integer',
+			props: {
+				value: {
+					type: Number,
+					default: 0
+				},
+				minimum: {
+					type: Number
+				},
+				maximum: {
+					type: Number
+				}
+			},
+			methods: {
+				updateValue: function( value ) {
+					this.$emit( 'input', Number( value ) );
+				}
+			}
+		},
+		{
+			name: 'input-boolean',
+			props: {
+				value: {
+					type: Boolean,
+					default: false
+				}
+			},
+			methods: {
+				updateValue: function( value ) {
+					this.$emit( 'input', Boolean( value ) );
+				}
+			}
+		},
+		{
+			name: 'input-array',
+			props: {
+				value: {
+					type: Array,
+					default: function() {
+						return [];
+					}
+				}
+			},
+			methods: {
+				updateValue: function( value ) {
+					this.$emit( 'input', value.split( ',' ) );
+				}
+			}
+		},
+		{
+			name: 'input-enum',
+			props: {
+				value: {
+					type: String,
+					default: ''
+				},
+				options: {
+					type: Array,
+					default: function() {
+						return [];
+					}
+				}
+			},
+			methods: {
+				updateValue: function( value ) {
+					this.$emit( 'input', String( value ) );
+				}
+			}
+		},
+		{
+			name: 'input-string',
+			props: {
+				value: {
+					type: String,
+					default: ''
+				}
+			},
+			methods: {
+				updateValue: function( value ) {
+					this.$emit( 'input', String( value ) );
+				}
 			}
 		}
 	];

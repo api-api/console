@@ -127,7 +127,7 @@ body {
 	font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
 }
 
-.navigation-header-back-button,
+.navigation-header-buttons,
 .inspector-header-buttons {
 	position: absolute;
 	top: 50%;
@@ -136,4 +136,13 @@ body {
 	-webkit-transform: translateY(-50%);
 	   -moz-transform: translateY(-50%);
 	        transform: translateY(-50%);
+}
+
+.modal.fade.in {
+	display: block;
+}
+
+.modal-body {
+	max-height: 600px;
+	overflow-y: scroll;
 }
