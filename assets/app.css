@@ -127,7 +127,8 @@ body {
 	font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
 }
 
-.navigation-header-back-button {
+.navigation-header-back-button,
+.inspector-header-buttons {
 	position: absolute;
 	top: 50%;
 	right: 10px;

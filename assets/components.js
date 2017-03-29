@@ -29,9 +29,25 @@
 					type: Array,
 					required: true
 				},
-				navigationStructureHeadline: {
+				navigationDefaultHeadline: {
 					type: String,
 					default: 'Available Structures'
+				},
+				inspectorDefaultHeadline: {
+					type: String,
+					default: 'Current Route'
+				},
+				inspectorDefaultContent: {
+					type: String,
+					default: '/* This area will show the latest API response. */'
+				},
+				inspectorButtonModifyParamsText: {
+					type: String,
+					default: 'Modify Parameters'
+				},
+				inspectorButtonSendRequestText: {
+					type: String,
+					default: 'Send Request'
 				},
 				loadingText: {
 					type: String,
@@ -42,6 +58,8 @@
 				return {
 					structureView: 'list',
 					routeView: 'list',
+					paramsFormOpen: false,
+					params: {},
 					currentStructure: null,
 					currentRoute: null
 				};
@@ -49,7 +67,7 @@
 			computed: {
 				navigationHeadline: function() {
 					if ( 'list' === this.structureView ) {
-						return this.navigationStructureHeadline;
+						return this.navigationDefaultHeadline;
 					}
 
 					if ( null === this.currentStructure ) {
@@ -71,6 +89,26 @@
 					}
 
 					return routeIdentifiers;
+				},
+				inspectorHeadline: function() {
+					if ( 'list' === this.structureView || 'list' === this.routeView ) {
+						return this.inspectorDefaultHeadline;
+					}
+
+					if ( null === this.currentStructure || null === this.currentRoute ) {
+						return this.loadingText;
+					}
+
+					return this.currentStructure.name + ': ' + this.currentRoute.method + ' ' + this.currentRoute.uri;
+				},
+				inspectorContent: function() {
+					if ( 'list' === this.structureView || 'list' === this.routeView ) {
+						return this.inspectorDefaultContent;
+					}
+
+					if ( null === this.currentStructure || null === this.currentRoute || ! this.currentRoute.lastResponse ) {
+						return this.inspectorDefaultContent;
+					}
 				}
 			},
 			watch: {
@@ -104,6 +142,16 @@
 					} else {
 						this.structureView = name;
 					}
+				},
+				toggleParamsForm: function() {
+					if ( this.paramsFormOpen ) {
+						this.paramsFormOpen = false;
+					} else {
+						this.paramsFormOpen = true;
+					}
+				},
+				sendAPIRequest: function() {
+
 				},
 				getStructureNames: function() {
 					var vm = this;

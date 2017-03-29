@@ -55,7 +55,7 @@ if ( ! class_exists( 'APIAPI\Console\Templates' ) ) {
 			?>
 			<div class="wrap">
 				<app-header headline="API-API Console"></app-header>
-				<app-main :ajaxUrl="ajaxUrl" :structureNames="structureNames" navigationStructureHeadline="Available Structures"></app-main>
+				<app-main :ajaxUrl="ajaxUrl" :structureNames="structureNames" navigationDefaultHeadline="Available Structures" inspectorDefaultHeadline="Current Route" inspectorDefaultContent="/* This area will show the latest API response. */"></app-main>
 				<app-footer copyright="Made with love by the API-API Team."></app-footer>
 			</div>
 			<?php
@@ -106,10 +106,14 @@ if ( ! class_exists( 'APIAPI\Console\Templates' ) ) {
 				<div class="inspector-wrap">
 				<div class="inspector">
 						<div class="inspector-route">
-							WordPress: POST /wp/v2/posts
+							<strong>{{inspectorHeadline}}</strong>
+							<span class="inspector-header-buttons" v-if="'list' !== structureView && 'list' !== routeView">
+								<button class="btn btn-default btn-xs" v-on:click.stop.prevent="toggleParamsForm()">{{inspectorButtonModifyParamsText}}</button>
+								<button class="btn btn-primary btn-xs" v-on:click.stop.prevent="sendAPIRequest()">{{inspectorButtonSendRequestText}}</button>
+							</span>
 						</div>
 						<div class="inspector-content-wrap">
-							<textarea class="inspector-content">/* Here you will find some JSON. */</textarea>
+							<textarea class="inspector-content" readonly>{{inspectorContent}}</textarea>
 						</div>
 					</div>
 				</div>
