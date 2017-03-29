@@ -119,7 +119,7 @@ if ( ! class_exists( 'APIAPI\Console\Templates' ) ) {
 							<strong>{{inspectorHeadline}}</strong>
 							<span class="inspector-header-buttons" v-if="'list' !== structureView && 'list' !== routeView">
 								<button class="btn btn-default btn-xs" v-on:click.stop.prevent="toggleParamsForm()">{{inspectorButtonParamsFormText}}</button>
-								<button class="btn btn-primary btn-xs" v-on:click.stop.prevent="sendAPIRequest()">{{inspectorButtonSendRequestText}}</button>
+								<button class="btn btn-primary btn-xs" v-on:click.stop.prevent="performRequest()">{{inspectorButtonSendRequestText}}</button>
 							</span>
 						</div>
 						<div class="inspector-content-wrap">
@@ -264,7 +264,6 @@ if ( ! class_exists( 'APIAPI\Console\Templates' ) ) {
 											</div>
 										</template>
 									</form>
-									<button type="button" v-on:click.stop.prevent="logParams()">Log Params</button>
 								</div>
 							</div>
 						</div>

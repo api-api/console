@@ -59,11 +59,12 @@ if ( ! class_exists( 'APIAPI\Console\AJAX' ) ) {
 		 */
 		public function handle_request() {
 			if ( empty( $this->request['action'] ) ) {
-				$this->serve_error_response( new Exception( 'Missing action.' ) );
+				var_dump( $this->request );
+				self::serve_error_response( new Exception( 'Missing action.' ) );
 			}
 
 			if ( ! isset( self::$actions[ $this->request['action'] ] ) ) {
-				$this->serve_error_response( new Exception( 'Invalid action.' ) );
+				self::serve_error_response( new Exception( 'Invalid action.' ) );
 			}
 
 			$callback = self::$actions[ $this->request['action'] ];
@@ -71,74 +72,12 @@ if ( ! class_exists( 'APIAPI\Console\AJAX' ) ) {
 			try {
 				$response = call_user_func( $callback, $this->request );
 			} catch( APIAPI_Exception $e ) {
-				$this->serve_error_response( $e );
+				self::serve_error_response( $e );
 			} catch ( Exception $e ) {
-				$this->serve_error_response( $e );
+				self::serve_error_response( $e );
 			}
 
-			$this->serve_success_response( $response );
-		}
-
-		/**
-		 * Serves a success response.
-		 *
-		 * @since 1.0.0
-		 * @access private
-		 *
-		 * @param array $response Response data.
-		 */
-		private function serve_success_response( $response ) {
-			$this->serve_response( $response, 200 );
-		}
-
-		/**
-		 * Serves an error response.
-		 *
-		 * @since 1.0.0
-		 * @access private
-		 *
-		 * @param Exception $exception Exception describing the error.
-		 */
-		private function serve_error_response( $exception ) {
-			$response = array(
-				'error'   => 'true',
-				'message' => $exception->getMessage(),
-			);
-
-			$status_code = 400;
-
-			if ( is_a( $exception, 'APIAPI\Core\Exception' ) ) {
-				$data = $exception->getData();
-				if ( ! empty( $data ) ) {
-					$response['data'] = $data;
-
-					if ( isset( $response['data']['status_code'] ) ) {
-						$status_code = (int) $response['data']['status_code'];
-					}
-				}
-			}
-
-			$this->serve_response( $response, $status_code );
-		}
-
-		/**
-		 * Serves a response.
-		 *
-		 * @since 1.0.0
-		 * @access private
-		 *
-		 * @param array $response    Response data.
-		 * @param int   $status_code Response status code.
-		 */
-		private function serve_response( $response, $status_code ) {
-			$protocol = in_array( $_SERVER['SERVER_PROTOCOL'], array( 'HTTP/1.1', 'HTTP/2', 'HTTP/2.0' ), true ) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.0';
-			$status_message = Transporter::get_status_message( $status_code );
-
-			header( $protocol . ' ' . $status_code . ' ' . $status_message, true, $status_code );
-			header( 'Content-Type: application/json; charset=utf-8' );
-
-			echo json_encode( $response );
-			exit;
+			self::serve_success_response( $response );
 		}
 
 		/**
@@ -162,6 +101,71 @@ if ( ! class_exists( 'APIAPI\Console\AJAX' ) ) {
 			}
 
 			return $data;
+		}
+
+		/**
+		 * Serves a success response.
+		 *
+		 * @since 1.0.0
+		 * @access public
+		 * @static
+		 *
+		 * @param array $response Response data.
+		 */
+		public static function serve_success_response( $response ) {
+			self::serve_response( $response, 200 );
+		}
+
+		/**
+		 * Serves an error response.
+		 *
+		 * @since 1.0.0
+		 * @access public
+		 * @static
+		 *
+		 * @param Exception $exception Exception describing the error.
+		 */
+		public static function serve_error_response( $exception ) {
+			$response = array(
+				'error'   => 'true',
+				'message' => $exception->getMessage(),
+			);
+
+			$status_code = 400;
+
+			if ( is_a( $exception, 'APIAPI\Core\Exception' ) ) {
+				$data = $exception->getData();
+				if ( ! empty( $data ) ) {
+					$response['data'] = $data;
+
+					if ( isset( $response['data']['status_code'] ) ) {
+						$status_code = (int) $response['data']['status_code'];
+					}
+				}
+			}
+
+			self::serve_response( $response, $status_code );
+		}
+
+		/**
+		 * Serves a response.
+		 *
+		 * @since 1.0.0
+		 * @access public
+		 * @static
+		 *
+		 * @param array $response    Response data.
+		 * @param int   $status_code Response status code.
+		 */
+		public static function serve_response( $response, $status_code ) {
+			$protocol = in_array( $_SERVER['SERVER_PROTOCOL'], array( 'HTTP/1.1', 'HTTP/2', 'HTTP/2.0' ), true ) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.0';
+			$status_message = Transporter::get_status_message( $status_code );
+
+			header( $protocol . ' ' . $status_code . ' ' . $status_message, true, $status_code );
+			header( 'Content-Type: application/json; charset=utf-8' );
+
+			echo json_encode( $response );
+			exit;
 		}
 
 		/**

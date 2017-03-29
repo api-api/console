@@ -82,7 +82,9 @@
 					paramsFormOpen: false,
 					params: {},
 					currentStructure: null,
-					currentRoute: null
+					currentRoute: null,
+					lastResponse: undefined,
+					inspectorContent: this.inspectorDefaultContent
 				};
 			},
 			computed: {
@@ -121,20 +123,12 @@
 					}
 
 					return this.currentRoute.method + ' ' + this.currentRoute.uri;
-				},
-				inspectorContent: function() {
-					if ( 'list' === this.structureView || 'list' === this.routeView ) {
-						return this.inspectorDefaultContent;
-					}
-
-					if ( null === this.currentStructure || null === this.currentRoute || ! this.currentRoute.lastResponse ) {
-						return this.inspectorDefaultContent;
-					}
 				}
 			},
 			watch: {
 				structureView: function( structureView ) {
 					this.params = {};
+					this.lastResponse = undefined;
 
 					if ( 'list' === structureView ) {
 						this.currentStructure = null;
@@ -144,6 +138,7 @@
 				},
 				routeView: function( routeView ) {
 					this.params = {};
+					this.lastResponse = undefined;
 
 					if ( 'list' === routeView ) {
 						this.currentRoute = null;
@@ -153,6 +148,13 @@
 						var method = match[1];
 
 						this.getRoute( this.structureView, route, method );
+					}
+				},
+				lastResponse: function( lastResponse ) {
+					if ( ! lastResponse ) {
+						this.inspectorContent = this.inspectorDefaultContent;
+					} else {
+						this.inspectorContent = JSON.stringify( lastResponse, null, 2 );
 					}
 				}
 			},
@@ -183,8 +185,26 @@
 						this.paramsFormOpen = true;
 					}
 				},
-				sendAPIRequest: function() {
+				performRequest: function() {
+					var vm = this;
+					this.$http.get( this.ajaxUrl, {
+						params: {
+							action: 'perform_request',
+							structure_name: this.currentStructure.name,
+							route_name: this.currentRoute.uri.replace( /\\/g, '\\\\' ),
+							method_name: this.currentRoute.method,
+							params: this.params
+						}
+					}).then( function( response ) {
+						if ( response.body.redirect ) {
+							window.location.href = response.body.redirect;
+							return;
+						}
 
+						vm.lastResponse = response.body;
+					}, function( response ) {
+						console.error( response.body.message );
+					});
 				},
 				getStructureNames: function() {
 					var vm = this;
@@ -225,9 +245,6 @@
 					}, function( response ) {
 						console.error( response.body.message );
 					});
-				},
-				logParams: function() {
-					console.log( this.params );
 				}
 			}
 		},

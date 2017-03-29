@@ -58,6 +58,12 @@ if ( ! class_exists( 'APIAPI\Console\Bridge' ) ) {
 			$this->apiapi_slug = $apiapi_slug;
 			$this->config_file = $config_file;
 
+			// For AJAX requests, the API-API instance is instantiated in the individual callback.
+			if ( ! isset( $_REQUEST['ajax'] ) ) {
+				$this->instantiate_apiapi( $this->get_config() );
+			}
+
+			AJAX::register_action( 'perform_request', array( $this, 'ajax_perform_request' ) );
 			AJAX::register_action( 'get_structure_names', array( $this, 'ajax_get_structure_names' ) );
 			AJAX::register_action( 'get_structure', array( $this, 'ajax_get_structure' ) );
 			AJAX::register_action( 'get_route', array( $this, 'ajax_get_route' ) );
@@ -204,6 +210,86 @@ if ( ! class_exists( 'APIAPI\Console\Bridge' ) ) {
 				'storageNames'       => array_keys( $this->get_storages() ),
 				'config'             => $this->get_config(),
 			);
+		}
+
+		/**
+		 * Sends a redirect URL to terminate an AJAX request.
+		 *
+		 * @since 1.0.0
+		 * @access public
+		 *
+		 * @param string $redirect_url URL to redirect to.
+		 */
+		public function redirect_via_ajax( $redirect_url ) {
+			AJAX::serve_success_response( array(
+				'redirect_to' => $redirect_url,
+			) );
+		}
+
+		/**
+		 * Performs a request to a specific API structure, route and method.
+		 *
+		 * Used as an AJAX callback.
+		 *
+		 * In case the request needs to be redirected, the AJAX request terminates early by calling
+		 * the redirect_via_ajax() method.
+		 *
+		 * @since 1.0.0
+		 * @access public
+		 *
+		 * @param array $request Request data.
+		 * @return array Array of response parameters.
+		 */
+		public function ajax_perform_request( $request ) {
+			if ( ! isset( $request['structure_name'] ) ) {
+				throw new Exception( 'No structure name given.', 0, array( 'status' => 400 ) );
+			}
+
+			if ( ! isset( $request['route_name'] ) ) {
+				throw new Exception( 'No route name given.', 0, array( 'status' => 400 ) );
+			}
+
+			if ( ! isset( $request['method_name'] ) ) {
+				throw new Exception( 'No method name given.', 0, array( 'status' => 400 ) );
+			}
+
+			$structure = $this->get_structure( $request['structure_name'] );
+			if ( ! $structure ) {
+				throw new Exception( sprintf( 'The structure %s does not exist.', $request['structure_name'] ), 0, array( 'status' => 404 ) );
+			}
+
+			try {
+				$route = $structure->get_route_object( $request['route_name'] );
+			} catch ( Exception $e ) {
+				throw new Exception( sprintf( 'The route %1$s in structure %2$s does not exist.', $request['route_name'], $request['structure_name'] ), 0, array( 'status' => 404 ) );
+			}
+
+			if ( ! in_array( $request['method_name'], $route->get_supported_methods(), true ) ) {
+				throw new Exception( sprintf( 'The route %1$s in structure %2$s does not support the %3$s method.', $request['route_name'], $request['structure_name'], $request['method_name'] ), 0, array( 'status' => 404 ) );
+			}
+
+			$config = $this->get_config();
+			if ( ! isset( $config[ $request['structure_name'] ] ) ) {
+				$config[ $request['structure_name'] ] = array();
+			}
+			if ( ! isset( $config[ $request['structure_name'] ]['authentication_data'] ) ) {
+				$config[ $request['structure_name'] ]['authentication_data'] = array();
+			}
+			$config[ $request['structure_name'] ]['authentication_data']['authorize_redirect_callback'] = array( $this, 'redirect_via_ajax' );
+
+			$this->instantiate_apiapi( $config );
+
+			$request_obj = $this->apiapi->get_request_object( $request['structure_name'], $request['route_name'], $request['method_name'] );
+
+			if ( isset( $request['params'] ) ) {
+				foreach ( $request['params'] as $param => $value ) {
+					$request_obj->set_param( $param, $value );
+				}
+			}
+
+			$response_obj = $this->apiapi->send_request( $request_obj );
+
+			return $response_obj->get_params();
 		}
 
 		/**
