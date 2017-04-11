@@ -322,6 +322,9 @@ if ( ! class_exists( 'APIAPI\Console\Templates' ) ) {
 									<p v-if="lastRedirect">
 										In order to authenticate, you will need to be redirected to {{lastRedirect}}.
 										<br>
+										After having authenticated, you will be redirected back to the API-API Console.
+									</p>
+									<p v-if="lastRedirect">
 										<a :href="lastRedirect">Redirect now!</a>
 									</p>
 								</div>
