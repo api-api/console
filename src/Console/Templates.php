@@ -308,7 +308,28 @@ if ( ! class_exists( 'APIAPI\Console\Templates' ) ) {
 						</div>
 					</div>
 				</div>
-				<div v-if="infoPanelOpen || paramsFormOpen || errorMessageOpen" class="modal-backdrop fade" :class="{ in: infoPanelOpen || paramsFormOpen || errorMessageOpen }"></div>
+				<div class="modal fade" :class="{ in: redirectNoticeOpen }" role="dialog" tabindex="-1">
+					<div class="modal-dialog" role="document">
+						<div class="modal-content">
+							<div class="modal-content">
+								<div class="modal-header">
+									<button type="button" class="close" :aria-label="closeText" v-on:click.stop.prevent="toggleRedirectNotice()">
+										<span aria-hidden="true">&times;</span>
+									</button>
+									<h4 class="modal-title">{{redirectNoticeHeadline}}</h4>
+								</div>
+								<div class="modal-body">
+									<p v-if="lastRedirect">
+										In order to authenticate, you will need to be redirected to {{lastRedirect}}.
+										<br>
+										<a :href="lastRedirect">Redirect now!</a>
+									</p>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div v-if="infoPanelOpen || paramsFormOpen || errorMessageOpen || redirectNoticeOpen" class="modal-backdrop fade" :class="{ in: infoPanelOpen || paramsFormOpen || errorMessageOpen || redirectNoticeOpen }"></div>
 			</main>
 			<?php
 		}

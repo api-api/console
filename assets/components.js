@@ -73,6 +73,10 @@
 					type: String,
 					default: 'Error'
 				},
+				redirectNoticeHeadline: {
+					type: String,
+					default: 'Pending Redirect'
+				},
 				closeText: {
 					type: String,
 					default: 'Close'
@@ -89,12 +93,14 @@
 					infoPanelOpen: false,
 					paramsFormOpen: false,
 					errorMessageOpen: false,
+					redirectNoticeOpen: false,
 					params: {},
 					currentStructure: null,
 					currentRoute: null,
 					performingRequest: false,
 					lastResponse: undefined,
 					lastError: undefined,
+					lastRedirect: undefined,
 					inspectorContent: this.inspectorDefaultContent
 				};
 			},
@@ -141,6 +147,7 @@
 					this.params = {};
 					this.lastResponse = undefined;
 					this.lastError = undefined;
+					this.lastRedirect = undefined;
 
 					this.currentStructure = null;
 					if ( 'list' !== structureView ) {
@@ -151,6 +158,7 @@
 					this.params = {};
 					this.lastResponse = undefined;
 					this.lastError = undefined;
+					this.lastRedirect = undefined;
 
 					this.currentRoute = null;
 					if ( 'list' !== routeView && 'list' !== this.structureView ) {
@@ -216,6 +224,13 @@
 						this.errorMessageOpen = true;
 					}
 				},
+				toggleRedirectNotice: function() {
+					if ( this.redirectNoticeOpen ) {
+						this.redirectNoticeOpen = false;
+					} else {
+						this.redirectNoticeOpen = true;
+					}
+				},
 				performRequest: function() {
 					var vm = this;
 
@@ -248,7 +263,11 @@
 						}
 
 						if ( response.body.redirect ) {
-							window.location.href = response.body.redirect;
+							vm.lastRedirect = response.body.redirect;
+
+							vm.toggleRedirectNotice();
+
+							vm.performingRequest = false;
 							return;
 						}
 
