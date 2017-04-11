@@ -189,6 +189,7 @@ if ( ! class_exists( 'APIAPI\Console\Templates' ) ) {
 								</div>
 								<div class="modal-body">
 									<form v-if="currentStructure && currentRoute" class="form-horizontal">
+										<p v-if="currentRoute.description">{{currentRoute.description}}</p>
 										<template v-if="currentStructure.baseUriParams.length">
 											<h5>Base URI parameters</h5>
 											<div v-for="param in currentStructure.baseUriParams" class="form-group">
