@@ -65,6 +65,10 @@
 					type: String,
 					default: 'Modify Parameters'
 				},
+				errorMessageHeadline: {
+					type: String,
+					default: 'Error'
+				},
 				closeText: {
 					type: String,
 					default: 'Close'
@@ -80,10 +84,12 @@
 					routeView: 'list',
 					infoPanelOpen: false,
 					paramsFormOpen: false,
+					errorMessageOpen: false,
 					params: {},
 					currentStructure: null,
 					currentRoute: null,
 					lastResponse: undefined,
+					lastError: undefined,
 					inspectorContent: this.inspectorDefaultContent
 				};
 			},
@@ -129,6 +135,7 @@
 				structureView: function( structureView ) {
 					this.params = {};
 					this.lastResponse = undefined;
+					this.lastError = undefined;
 
 					if ( 'list' === structureView ) {
 						this.currentStructure = null;
@@ -139,6 +146,7 @@
 				routeView: function( routeView ) {
 					this.params = {};
 					this.lastResponse = undefined;
+					this.lastError = undefined;
 
 					if ( 'list' === routeView ) {
 						this.currentRoute = null;
@@ -185,6 +193,13 @@
 						this.paramsFormOpen = true;
 					}
 				},
+				toggleErrorMessage: function() {
+					if ( this.errorMessageOpen ) {
+						this.errorMessageOpen = false;
+					} else {
+						this.errorMessageOpen = true;
+					}
+				},
 				performRequest: function() {
 					var vm = this;
 					this.$http.get( this.ajaxUrl, {
@@ -203,7 +218,13 @@
 
 						vm.lastResponse = response.body;
 					}, function( response ) {
-						console.error( response.body.message );
+						vm.lastError = {
+							statusCode: response.status,
+							statusText: response.statusText,
+							message: response.body.message
+						};
+
+						vm.toggleErrorMessage();
 					});
 				},
 				getStructureNames: function() {

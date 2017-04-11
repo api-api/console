@@ -269,7 +269,46 @@ if ( ! class_exists( 'APIAPI\Console\Templates' ) ) {
 						</div>
 					</div>
 				</div>
-				<div v-if="infoPanelOpen || paramsFormOpen" class="modal-backdrop fade" :class="{ in: infoPanelOpen || paramsFormOpen }"></div>
+				<div class="modal fade" :class="{ in: errorMessageOpen }" role="dialog" tabindex="-1">
+					<div class="modal-dialog" role="document">
+						<div class="modal-content">
+							<div class="modal-content">
+								<div class="modal-header">
+									<button type="button" class="close" :aria-label="closeText" v-on:click.stop.prevent="toggleErrorMessage()">
+										<span aria-hidden="true">&times;</span>
+									</button>
+									<h4 class="modal-title">{{errorMessageHeadline}}</h4>
+								</div>
+								<div class="modal-body">
+									<div class="row">
+										<div class="col-sm-3">
+											<strong>Status Code</strong>
+										</div>
+										<div class="col-sm-9">
+											<span v-if="lastError && lastError.statusCode">
+												{{lastError.statusCode}}
+											</span>
+											<span v-if="lastError && lastError.statusText">
+												{{lastError.statusText}}
+											</span>
+										</div>
+									</div>
+									<div class="row">
+										<div class="col-sm-3">
+											<strong>Message</strong>
+										</div>
+										<div class="col-sm-9">
+											<span v-if="lastError && lastError.message">
+												{{lastError.message}}
+											</span>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div v-if="infoPanelOpen || paramsFormOpen || errorMessageOpen" class="modal-backdrop fade" :class="{ in: infoPanelOpen || paramsFormOpen || errorMessageOpen }"></div>
 			</main>
 			<?php
 		}
