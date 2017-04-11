@@ -262,8 +262,8 @@
 							return;
 						}
 
-						if ( response.body.redirect ) {
-							vm.lastRedirect = response.body.redirect;
+						if ( response.body.redirect_to ) {
+							vm.lastRedirect = response.body.redirect_to;
 
 							vm.toggleRedirectNotice();
 
