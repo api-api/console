@@ -202,6 +202,17 @@
 				},
 				performRequest: function() {
 					var vm = this;
+
+					function handleNoResponseBody( response ) {
+						vm.lastError = {
+							statusCode: response.status,
+							statusText: response.statusText,
+							message: 'No response body was received.'
+						};
+
+						vm.toggleErrorMessage();
+					}
+
 					this.$http.get( this.ajaxUrl, {
 						params: {
 							action: 'perform_request',
@@ -211,6 +222,11 @@
 							params: this.params
 						}
 					}).then( function( response ) {
+						if ( null === response.body ) {
+							handleNoResponseBody( response );
+							return;
+						}
+
 						if ( response.body.redirect ) {
 							window.location.href = response.body.redirect;
 							return;
@@ -218,6 +234,11 @@
 
 						vm.lastResponse = response.body;
 					}, function( response ) {
+						if ( null === response.body ) {
+							handleNoResponseBody( response );
+							return;
+						}
+
 						vm.lastError = {
 							statusCode: response.status,
 							statusText: response.statusText,
