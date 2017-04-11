@@ -4,6 +4,7 @@
 		{
 			name: 'app',
 			props: {
+				baseUrl: String,
 				ajaxUrl: String,
 				structureNames: Array,
 				authenticatorNames: Array,
@@ -15,6 +16,7 @@
 		{
 			name: 'app-header',
 			props: {
+				baseUrl: String,
 				headline: String
 			}
 		},

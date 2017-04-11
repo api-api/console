@@ -26,6 +26,12 @@ body {
 	background-color: #21759b;
 }
 
+.header h1 a,
+.header h1 a:hover,
+.header h1 a:focus {
+	color: #ffffff;
+}
+
 .main {
 	top: 120px;
 	bottom: 40px;

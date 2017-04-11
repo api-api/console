@@ -61,7 +61,7 @@ if ( ! class_exists( 'APIAPI\Console\Templates' ) ) {
 		private static function print_template_app() {
 			?>
 			<div class="wrap">
-				<app-header headline="API-API Console"></app-header>
+				<app-header :baseUrl="baseUrl" headline="API-API Console"></app-header>
 				<app-main :ajaxUrl="ajaxUrl" :structureNames="structureNames" navigationDefaultHeadline="Available Structures" inspectorDefaultHeadline="Current Route" inspectorDefaultContent="/* This area will show the latest API response. */"></app-main>
 				<app-footer copyright="Made with love by the API-API Team."></app-footer>
 			</div>
@@ -78,7 +78,9 @@ if ( ! class_exists( 'APIAPI\Console\Templates' ) ) {
 		private static function print_template_app_header() {
 			?>
 			<header class="header container-fluid">
-				<h1 class="headline">{{headline}}</h1>
+				<h1 class="headline">
+					<a :href="baseUrl">{{headline}}</a>
+				</h1>
 			</header>
 			<?php
 		}

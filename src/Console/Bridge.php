@@ -203,6 +203,7 @@ if ( ! class_exists( 'APIAPI\Console\Bridge' ) ) {
 		 */
 		public function get_js_data() {
 			return array(
+				'baseUrl'            => self::get_current_url( 'path' ),
 				'ajaxUrl'            => AJAX::get_base_url(),
 				'structureNames'     => array_keys( $this->get_structures() ),
 				'authenticatorNames' => array_keys( $this->get_authenticators() ),
