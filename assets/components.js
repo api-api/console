@@ -41,6 +41,10 @@
 					type: String,
 					default: '/* This area will show the latest API response. */'
 				},
+				inspectorLoadingContent: {
+					type: String,
+					default: '/* Loading... */'
+				},
 				navigationButtonInfoPanelText: {
 					type: String,
 					default: 'See Info'
@@ -88,6 +92,7 @@
 					params: {},
 					currentStructure: null,
 					currentRoute: null,
+					performingRequest: false,
 					lastResponse: undefined,
 					lastError: undefined,
 					inspectorContent: this.inspectorDefaultContent
@@ -137,9 +142,8 @@
 					this.lastResponse = undefined;
 					this.lastError = undefined;
 
-					if ( 'list' === structureView ) {
-						this.currentStructure = null;
-					} else {
+					this.currentStructure = null;
+					if ( 'list' !== structureView ) {
 						this.getStructure( structureView );
 					}
 				},
@@ -148,9 +152,8 @@
 					this.lastResponse = undefined;
 					this.lastError = undefined;
 
-					if ( 'list' === routeView ) {
-						this.currentRoute = null;
-					} else if ( 'list' !== this.structureView ) {
+					this.currentRoute = null;
+					if ( 'list' !== routeView && 'list' !== this.structureView ) {
 						var match = routeView.match( /^(GET|POST|PUT|PATCH|DELETE) / );
 						var route = routeView.substring( match[0].length );
 						var method = match[1];
@@ -159,10 +162,23 @@
 					}
 				},
 				lastResponse: function( lastResponse ) {
+					if ( this.performingRequest ) {
+						return;
+					}
+
 					if ( ! lastResponse ) {
 						this.inspectorContent = this.inspectorDefaultContent;
 					} else {
 						this.inspectorContent = JSON.stringify( lastResponse, null, 2 );
+					}
+				},
+				performingRequest: function( performingRequest ) {
+					if ( performingRequest ) {
+						this.inspectorContent = this.inspectorLoadingContent;
+					} else if ( ! this.lastResponse ) {
+						this.inspectorContent = this.inspectorDefaultContent;
+					} else {
+						this.inspectorContent = JSON.stringify( this.lastResponse, null, 2 );
 					}
 				}
 			},
@@ -211,7 +227,11 @@
 						};
 
 						vm.toggleErrorMessage();
+
+						vm.performingRequest = false;
 					}
+
+					vm.performingRequest = true;
 
 					this.$http.get( this.ajaxUrl, {
 						params: {
@@ -233,6 +253,8 @@
 						}
 
 						vm.lastResponse = response.body;
+
+						vm.performingRequest = false;
 					}, function( response ) {
 						if ( null === response.body ) {
 							handleNoResponseBody( response );
@@ -246,6 +268,8 @@
 						};
 
 						vm.toggleErrorMessage();
+
+						vm.performingRequest = false;
 					});
 				},
 				getStructureNames: function() {
