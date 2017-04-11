@@ -250,13 +250,36 @@
 
 					vm.performingRequest = true;
 
+					var routeParams = {};
+
+					var paramKeys = Object.keys( this.params );
+					var key, value;
+					for ( var i in paramKeys ) {
+						key = paramKeys[ i ];
+						value = this.params[ key ];
+
+						if ( null === value || undefined === value ) {
+							continue;
+						}
+
+						if ( 'string' === typeof value && ! value.length ) {
+							continue;
+						}
+
+						if ( 'object' === typeof value && ! value.length ) {
+							continue;
+						}
+
+						routeParams[ key ] = value;
+					}
+
 					this.$http.get( this.ajaxUrl, {
 						params: {
 							action: 'perform_request',
 							structure_name: this.currentStructure.name,
 							route_name: this.currentRoute.uri.replace( /\\/g, '\\\\' ),
 							method_name: this.currentRoute.method,
-							params: this.params
+							params: routeParams
 						}
 					}).then( function( response ) {
 						if ( null === response.body ) {
@@ -415,7 +438,15 @@
 			},
 			methods: {
 				updateValue: function( value ) {
-					this.$emit( 'input', value.split( ',' ) );
+					var formatted;
+
+					if ( value.length ) {
+						formatted = value.split( ',' );
+					} else {
+						formatted = [];
+					}
+
+					this.$emit( 'input', formatted );
 				}
 			}
 		},
