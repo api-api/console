@@ -275,7 +275,23 @@ if ( ! class_exists( 'APIAPI\Console\Bridge' ) ) {
 			if ( ! isset( $config[ $request['structure_name'] ]['authentication_data'] ) ) {
 				$config[ $request['structure_name'] ]['authentication_data'] = array();
 			}
-			$config[ $request['structure_name'] ]['authentication_data']['authorize_redirect_callback'] = array( $this, 'redirect_via_ajax' );
+
+			$oauth1_required_fields = array(
+				'consumer_key',
+				'consumer_secret',
+			);
+
+			$required_exist = true;
+			foreach ( $oauth1_required_fields as $required_field ) {
+				if ( empty( $value['authentication_data'][ $required_field ] ) ) {
+					$required_exist = false;
+					break;
+				}
+			}
+
+			if ( $required_exist ) {
+				$config[ $request['structure_name'] ]['authentication_data']['authorize_redirect_callback'] = array( $this, 'redirect_via_ajax' );
+			}
 
 			$this->instantiate_apiapi( $config );
 
