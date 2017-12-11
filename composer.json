@@ -44,6 +44,7 @@
     "api-api/transporter-requests": "dev-master",
     "api-api/authenticator-basic": "dev-master",
     "api-api/authenticator-bearer": "dev-master",
+    "api-api/authenticator-key": "dev-master",
     "api-api/authenticator-oauth1": "dev-master",
     "api-api/authenticator-x": "dev-master",
     "api-api/authenticator-x-account": "dev-master",

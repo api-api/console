@@ -61,7 +61,7 @@ if ( ! class_exists( 'APIAPI\Console\Templates' ) ) {
 		private static function print_template_app() {
 			?>
 			<div class="wrap">
-				<app-header headline="API-API Console"></app-header>
+				<app-header :baseUrl="baseUrl" headline="API-API Console"></app-header>
 				<app-main :ajaxUrl="ajaxUrl" :structureNames="structureNames" navigationDefaultHeadline="Available Structures" inspectorDefaultHeadline="Current Route" inspectorDefaultContent="/* This area will show the latest API response. */"></app-main>
 				<app-footer copyright="Made with love by the API-API Team."></app-footer>
 			</div>
@@ -78,7 +78,9 @@ if ( ! class_exists( 'APIAPI\Console\Templates' ) ) {
 		private static function print_template_app_header() {
 			?>
 			<header class="header container-fluid">
-				<h1 class="headline">{{headline}}</h1>
+				<h1 class="headline">
+					<a :href="baseUrl">{{headline}}</a>
+				</h1>
 			</header>
 			<?php
 		}
@@ -187,6 +189,7 @@ if ( ! class_exists( 'APIAPI\Console\Templates' ) ) {
 								</div>
 								<div class="modal-body">
 									<form v-if="currentStructure && currentRoute" class="form-horizontal">
+										<p v-if="currentRoute.description">{{currentRoute.description}}</p>
 										<template v-if="currentStructure.baseUriParams.length">
 											<h5>Base URI parameters</h5>
 											<div v-for="param in currentStructure.baseUriParams" class="form-group">
@@ -269,7 +272,70 @@ if ( ! class_exists( 'APIAPI\Console\Templates' ) ) {
 						</div>
 					</div>
 				</div>
-				<div v-if="infoPanelOpen || paramsFormOpen" class="modal-backdrop fade" :class="{ in: infoPanelOpen || paramsFormOpen }"></div>
+				<div class="modal fade" :class="{ in: errorMessageOpen }" role="dialog" tabindex="-1">
+					<div class="modal-dialog" role="document">
+						<div class="modal-content">
+							<div class="modal-content">
+								<div class="modal-header">
+									<button type="button" class="close" :aria-label="closeText" v-on:click.stop.prevent="toggleErrorMessage()">
+										<span aria-hidden="true">&times;</span>
+									</button>
+									<h4 class="modal-title">{{errorMessageHeadline}}</h4>
+								</div>
+								<div class="modal-body">
+									<div class="row">
+										<div class="col-sm-3">
+											<strong>Status Code</strong>
+										</div>
+										<div class="col-sm-9">
+											<span v-if="lastError && lastError.statusCode">
+												{{lastError.statusCode}}
+											</span>
+											<span v-if="lastError && lastError.statusText">
+												{{lastError.statusText}}
+											</span>
+										</div>
+									</div>
+									<div class="row">
+										<div class="col-sm-3">
+											<strong>Message</strong>
+										</div>
+										<div class="col-sm-9">
+											<span v-if="lastError && lastError.message">
+												{{lastError.message}}
+											</span>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="modal fade" :class="{ in: redirectNoticeOpen }" role="dialog" tabindex="-1">
+					<div class="modal-dialog" role="document">
+						<div class="modal-content">
+							<div class="modal-content">
+								<div class="modal-header">
+									<button type="button" class="close" :aria-label="closeText" v-on:click.stop.prevent="toggleRedirectNotice()">
+										<span aria-hidden="true">&times;</span>
+									</button>
+									<h4 class="modal-title">{{redirectNoticeHeadline}}</h4>
+								</div>
+								<div class="modal-body">
+									<p v-if="lastRedirect">
+										In order to authenticate, you will need to be redirected to {{lastRedirect}}.
+										<br>
+										After having authenticated, you will be redirected back to the API-API Console.
+									</p>
+									<p v-if="lastRedirect">
+										<a :href="lastRedirect">Redirect now!</a>
+									</p>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div v-if="infoPanelOpen || paramsFormOpen || errorMessageOpen || redirectNoticeOpen" class="modal-backdrop fade" :class="{ in: infoPanelOpen || paramsFormOpen || errorMessageOpen || redirectNoticeOpen }"></div>
 			</main>
 			<?php
 		}

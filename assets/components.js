@@ -4,6 +4,7 @@
 		{
 			name: 'app',
 			props: {
+				baseUrl: String,
 				ajaxUrl: String,
 				structureNames: Array,
 				authenticatorNames: Array,
@@ -15,6 +16,7 @@
 		{
 			name: 'app-header',
 			props: {
+				baseUrl: String,
 				headline: String
 			}
 		},
@@ -41,6 +43,10 @@
 					type: String,
 					default: '/* This area will show the latest API response. */'
 				},
+				inspectorLoadingContent: {
+					type: String,
+					default: '/* Loading... */'
+				},
 				navigationButtonInfoPanelText: {
 					type: String,
 					default: 'See Info'
@@ -65,6 +71,14 @@
 					type: String,
 					default: 'Modify Parameters'
 				},
+				errorMessageHeadline: {
+					type: String,
+					default: 'Error'
+				},
+				redirectNoticeHeadline: {
+					type: String,
+					default: 'Pending Redirect'
+				},
 				closeText: {
 					type: String,
 					default: 'Close'
@@ -80,10 +94,15 @@
 					routeView: 'list',
 					infoPanelOpen: false,
 					paramsFormOpen: false,
+					errorMessageOpen: false,
+					redirectNoticeOpen: false,
 					params: {},
 					currentStructure: null,
 					currentRoute: null,
+					performingRequest: false,
 					lastResponse: undefined,
+					lastError: undefined,
+					lastRedirect: undefined,
 					inspectorContent: this.inspectorDefaultContent
 				};
 			},
@@ -129,20 +148,22 @@
 				structureView: function( structureView ) {
 					this.params = {};
 					this.lastResponse = undefined;
+					this.lastError = undefined;
+					this.lastRedirect = undefined;
 
-					if ( 'list' === structureView ) {
-						this.currentStructure = null;
-					} else {
+					this.currentStructure = null;
+					if ( 'list' !== structureView ) {
 						this.getStructure( structureView );
 					}
 				},
 				routeView: function( routeView ) {
 					this.params = {};
 					this.lastResponse = undefined;
+					this.lastError = undefined;
+					this.lastRedirect = undefined;
 
-					if ( 'list' === routeView ) {
-						this.currentRoute = null;
-					} else if ( 'list' !== this.structureView ) {
+					this.currentRoute = null;
+					if ( 'list' !== routeView && 'list' !== this.structureView ) {
 						var match = routeView.match( /^(GET|POST|PUT|PATCH|DELETE) / );
 						var route = routeView.substring( match[0].length );
 						var method = match[1];
@@ -151,10 +172,23 @@
 					}
 				},
 				lastResponse: function( lastResponse ) {
+					if ( this.performingRequest ) {
+						return;
+					}
+
 					if ( ! lastResponse ) {
 						this.inspectorContent = this.inspectorDefaultContent;
 					} else {
 						this.inspectorContent = JSON.stringify( lastResponse, null, 2 );
+					}
+				},
+				performingRequest: function( performingRequest ) {
+					if ( performingRequest ) {
+						this.inspectorContent = this.inspectorLoadingContent;
+					} else if ( ! this.lastResponse ) {
+						this.inspectorContent = this.inspectorDefaultContent;
+					} else {
+						this.inspectorContent = JSON.stringify( this.lastResponse, null, 2 );
 					}
 				}
 			},
@@ -185,25 +219,101 @@
 						this.paramsFormOpen = true;
 					}
 				},
+				toggleErrorMessage: function() {
+					if ( this.errorMessageOpen ) {
+						this.errorMessageOpen = false;
+					} else {
+						this.errorMessageOpen = true;
+					}
+				},
+				toggleRedirectNotice: function() {
+					if ( this.redirectNoticeOpen ) {
+						this.redirectNoticeOpen = false;
+					} else {
+						this.redirectNoticeOpen = true;
+					}
+				},
 				performRequest: function() {
 					var vm = this;
+
+					function handleNoResponseBody( response ) {
+						vm.lastError = {
+							statusCode: response.status,
+							statusText: response.statusText,
+							message: 'No response body was received.'
+						};
+
+						vm.toggleErrorMessage();
+
+						vm.performingRequest = false;
+					}
+
+					vm.performingRequest = true;
+
+					var routeParams = {};
+
+					var paramKeys = Object.keys( this.params );
+					var key, value;
+					for ( var i in paramKeys ) {
+						key = paramKeys[ i ];
+						value = this.params[ key ];
+
+						if ( null === value || undefined === value ) {
+							continue;
+						}
+
+						if ( 'string' === typeof value && ! value.length ) {
+							continue;
+						}
+
+						if ( 'object' === typeof value && ! value.length ) {
+							continue;
+						}
+
+						routeParams[ key ] = value;
+					}
+
 					this.$http.get( this.ajaxUrl, {
 						params: {
 							action: 'perform_request',
 							structure_name: this.currentStructure.name,
 							route_name: this.currentRoute.uri.replace( /\\/g, '\\\\' ),
 							method_name: this.currentRoute.method,
-							params: this.params
+							params: routeParams
 						}
 					}).then( function( response ) {
-						if ( response.body.redirect ) {
-							window.location.href = response.body.redirect;
+						if ( null === response.body ) {
+							handleNoResponseBody( response );
+							return;
+						}
+
+						if ( response.body.redirect_to ) {
+							vm.lastRedirect = response.body.redirect_to;
+
+							vm.toggleRedirectNotice();
+
+							vm.performingRequest = false;
 							return;
 						}
 
 						vm.lastResponse = response.body;
+
+						vm.performingRequest = false;
 					}, function( response ) {
-						console.error( response.body.message );
+						if ( null === response.body ) {
+							handleNoResponseBody( response );
+							return;
+						}
+
+						vm.lastError = {
+							statusCode: response.status,
+							statusText: response.statusText,
+							message: response.body.message
+						};
+
+						vm.toggleErrorMessage();
+
+						vm.performingRequest = false;
 					});
 				},
 				getStructureNames: function() {
@@ -328,7 +438,15 @@
 			},
 			methods: {
 				updateValue: function( value ) {
-					this.$emit( 'input', value.split( ',' ) );
+					var formatted;
+
+					if ( value.length ) {
+						formatted = value.split( ',' );
+					} else {
+						formatted = [];
+					}
+
+					this.$emit( 'input', formatted );
 				}
 			}
 		},

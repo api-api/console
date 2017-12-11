@@ -78,7 +78,11 @@ if ( ! class_exists( 'APIAPI\Console\Bridge' ) ) {
 		 * @return array Array of structures.
 		 */
 		public function get_structures() {
-			return apiapi_manager()->structures()->get_all();
+			$structures = apiapi_manager()->structures()->get_all();
+
+			ksort( $structures );
+
+			return $structures;
 		}
 
 		/**
@@ -90,7 +94,11 @@ if ( ! class_exists( 'APIAPI\Console\Bridge' ) ) {
 		 * @return array Array of authenticators.
 		 */
 		public function get_authenticators() {
-			return apiapi_manager()->authenticators()->get_all();
+			$authenticators = apiapi_manager()->authenticators()->get_all();
+
+			ksort( $authenticators );
+
+			return $authenticators;
 		}
 
 		/**
@@ -102,7 +110,11 @@ if ( ! class_exists( 'APIAPI\Console\Bridge' ) ) {
 		 * @return array Array of transporters.
 		 */
 		public function get_transporters() {
-			return apiapi_manager()->transporters()->get_all();
+			$transporters = apiapi_manager()->transporters()->get_all();
+
+			ksort( $transporters );
+
+			return $transporters;
 		}
 
 		/**
@@ -114,7 +126,11 @@ if ( ! class_exists( 'APIAPI\Console\Bridge' ) ) {
 		 * @return array Array of storages.
 		 */
 		public function get_storages() {
-			return apiapi_manager()->storages()->get_all();
+			$storages = apiapi_manager()->storages()->get_all();
+
+			ksort( $storages );
+
+			return $storages;
 		}
 
 		/**
@@ -203,6 +219,7 @@ if ( ! class_exists( 'APIAPI\Console\Bridge' ) ) {
 		 */
 		public function get_js_data() {
 			return array(
+				'baseUrl'            => self::get_current_url( 'path' ),
 				'ajaxUrl'            => AJAX::get_base_url(),
 				'structureNames'     => array_keys( $this->get_structures() ),
 				'authenticatorNames' => array_keys( $this->get_authenticators() ),
