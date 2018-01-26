@@ -2,7 +2,7 @@
   "name": "api-api/console",
   "description": "A console to send and inspect requests with the API-API.",
   "version": "1.0.0",
-  "license": "GPL-3.0",
+  "license": "GPL-2.0-or-later",
   "keywords": [
     "api-api",
     "api",

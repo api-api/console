@@ -22,9 +22,9 @@
     "url": "git://github.com/api-api/console.git"
   },
   "bugs": {
-    "url" : "https://github.com/api-api/console/issues"
+    "url": "https://github.com/api-api/console/issues"
   },
-  "license": "GPL-3.0",
+  "license": "GPL-2.0-or-later",
   "engines": {
     "node": ">= 0.10.0"
   },
